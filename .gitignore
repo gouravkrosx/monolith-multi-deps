@@ -1,0 +1,6 @@
+bin/
+*.log
+keploy-logs.txt
+keploy/reports/
+keploy/*/secret.yaml
+.env
