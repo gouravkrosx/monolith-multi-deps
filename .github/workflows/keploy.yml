@@ -14,14 +14,16 @@ jobs:
       # only patches /usr/local/go (hardcoded). setup-go installs into the tool
       # cache (/opt/hostedtoolcache/go/...), which the helper leaves untouched —
       # so -tags=faketime falls back to Go's stdlib playground time (2009-11-10)
-      # and the HTTP server stops servicing. Stick to the runner's preinstalled
-      # Go at /usr/local/go.
-      - name: Use runner's preinstalled Go (/usr/local/go)
+      # and the HTTP server stops servicing. Install Go directly to /usr/local/go.
+      - name: Install Go at /usr/local/go (matches helper's hardcoded GOROOT)
+        env:
+          GO_VERSION: '1.22.10'
         run: |
           set -eu
-          if ! /usr/local/go/bin/go version >/dev/null 2>&1; then
-            echo "::error::/usr/local/go/bin/go not found on this runner — install a Go toolchain there before patching."
-            exit 1
+          if ! /usr/local/go/bin/go version 2>/dev/null | grep -q "go${GO_VERSION}"; then
+            curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz
+            sudo rm -rf /usr/local/go
+            sudo tar -C /usr/local -xzf /tmp/go.tgz
           fi
           echo "/usr/local/go/bin" >> "$GITHUB_PATH"
           /usr/local/go/bin/go version
