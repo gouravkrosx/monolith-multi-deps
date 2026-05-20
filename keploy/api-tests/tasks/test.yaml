@@ -1,0 +1,103 @@
+name: tasks_CRUD
+description: Register/login a user, then exercise the full /api/v1/tasks CRUD lifecycle.
+steps:
+  - name: register_user
+    method: POST
+    url: /api/v1/auth/register
+    headers:
+      Content-Type: application/json
+    body: '{"username":"keploy_tasks_user","email":"keploy_tasks_user@example.com","password":"P@ssword123","role":"user"}'
+    assert:
+      - type: status_code_in
+        expected: ["201", "409"]
+
+  - name: login_user
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"keploy_tasks_user","password":"P@ssword123"}'
+    extract:
+      token: $.access_token
+      user_id: $.user.id
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.user.username
+        expected: "keploy_tasks_user"
+      - type: json_strict_equal
+        key: $.user.role
+        expected: "user"
+      - type: json_strict_equal
+        key: $.user.is_active
+        expected: true
+
+  - name: create_task
+    method: POST
+    url: /api/v1/tasks
+    headers:
+      Content-Type: application/json
+      Authorization: Bearer {{token}}
+    body: '{"title":"Keploy seed task","description":"chained CRUD seed","priority":"medium"}'
+    extract:
+      task_id: $.id
+    assert:
+      - type: status_code
+        expected_string: "201"
+      - type: json_strict_equal
+        key: $.title
+        expected: "Keploy seed task"
+      - type: json_strict_equal
+        key: $.status
+        expected: "pending"
+      - type: json_strict_equal
+        key: $.priority
+        expected: "medium"
+      - type: json_strict_equal
+        key: $.owner_id
+        expected: "{{user_id}}"
+
+  - name: get_task
+    method: GET
+    url: /api/v1/tasks/{{task_id}}
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.id
+        expected: "{{task_id}}"
+      - type: json_strict_equal
+        key: $.status
+        expected: "pending"
+
+  - name: update_task
+    method: PATCH
+    url: /api/v1/tasks/{{task_id}}
+    headers:
+      Content-Type: application/json
+      Authorization: Bearer {{token}}
+    body: '{"status":"in_progress","priority":"high"}'
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.status
+        expected: "in_progress"
+      - type: json_strict_equal
+        key: $.priority
+        expected: "high"
+
+  - name: delete_task
+    method: DELETE
+    url: /api/v1/tasks/{{task_id}}
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.status
+        expected: "deleted"

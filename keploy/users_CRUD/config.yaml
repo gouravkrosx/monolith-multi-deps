@@ -1,0 +1,9 @@
+preScript: ""
+postScript: ""
+appCommand: ""
+template: {}
+metadata:
+    name: users_CRUD
+mockRegistry:
+    mock: a5761d126f4299ed2118dd0c47e22d3b09707998b124344822f3e90edf87869c
+    app: monolith-multi-deps

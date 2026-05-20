@@ -1,0 +1,118 @@
+name: users_CRUD
+description: Exercise /api/v1/users read endpoints plus admin-only role/deactivate gating (actor is a regular user, so admin paths must return 403).
+steps:
+  - name: register_actor
+    method: POST
+    url: /api/v1/auth/register
+    headers:
+      Content-Type: application/json
+    body: '{"username":"keploy_users_actor","email":"keploy_users_actor@example.com","password":"P@ssword123","role":"user"}'
+    assert:
+      - type: status_code_in
+        expected: ["201", "409"]
+
+  - name: login_actor
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"keploy_users_actor","password":"P@ssword123"}'
+    extract:
+      token: $.access_token
+      actor_id: $.user.id
+    assert:
+      - type: status_code
+        expected_string: "200"
+
+  - name: register_subject
+    method: POST
+    url: /api/v1/auth/register
+    headers:
+      Content-Type: application/json
+    body: '{"username":"keploy_users_subject","email":"keploy_users_subject@example.com","password":"P@ssword123","role":"user"}'
+    assert:
+      - type: status_code_in
+        expected: ["201", "409"]
+
+  - name: login_subject
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"keploy_users_subject","password":"P@ssword123"}'
+    extract:
+      subject_id: $.user.id
+    assert:
+      - type: status_code
+        expected_string: "200"
+
+  - name: get_me
+    method: GET
+    url: /api/v1/me
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.id
+        expected: "{{actor_id}}"
+      - type: json_strict_equal
+        key: $.username
+        expected: "keploy_users_actor"
+      - type: json_strict_equal
+        key: $.role
+        expected: "user"
+      - type: json_strict_equal
+        key: $.is_active
+        expected: true
+
+  - name: list_users
+    method: GET
+    url: /api/v1/users
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_contains
+        key: $.users
+        expected_string: '"username":"keploy_users_actor"'
+
+  - name: get_subject
+    method: GET
+    url: /api/v1/users/{{subject_id}}
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.id
+        expected: "{{subject_id}}"
+      - type: json_strict_equal
+        key: $.username
+        expected: "keploy_users_subject"
+      - type: json_strict_equal
+        key: $.role
+        expected: "user"
+
+  - name: patch_role_forbidden
+    method: PATCH
+    url: /api/v1/users/{{subject_id}}/role
+    headers:
+      Content-Type: application/json
+      Authorization: Bearer {{token}}
+    body: '{"role":"admin"}'
+    assert:
+      - type: status_code
+        expected_string: "403"
+
+  - name: deactivate_forbidden
+    method: DELETE
+    url: /api/v1/users/{{subject_id}}
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "403"

@@ -1,0 +1,59 @@
+name: Keploy sandbox replay
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  keploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Install Keploy
+        run: curl -sL https://keploy.io/ent/install.sh | sudo bash
+
+      - name: Patch Go toolchain for faketime
+        run: |
+          set -eu
+          HELPER=/usr/lib/keploy/go_freeze_time_amd64
+          [ -f "$HELPER" ] || HELPER=/usr/local/lib/keploy/go_freeze_time_amd64
+          if [ ! -f "$HELPER" ]; then
+            echo "::error::go_freeze_time_amd64 not found after Keploy install"
+            exit 1
+          fi
+          sudo env "PATH=$PATH" "$HELPER"
+
+      - name: Build replay binary
+        # -tags=faketime emits a binary whose time.Now() reads /tmp/keploy_time.txt.
+        # MUST be a sibling path — never overwrite ./bin/server (the prod path used for recording).
+        run: |
+          mkdir -p bin
+          go build -tags=faketime -o ./bin/server.replay ./cmd/server
+
+      - name: Run Keploy sandbox replay
+        env:
+          KEPLOY_API_KEY: ${{ secrets.KEPLOY_API_KEY }}
+        run: |
+          sudo -E HOME=$HOME keploy sandbox local replay \
+            --test-dir keploy/api-tests \
+            --app-url http://localhost:8080 \
+            --cloud-app-id 456f2ebe-3ac5-4952-be08-97862e16c206 \
+            --freezeTime \
+            --ci \
+            -c "bash -c 'set -a && source .env.example && set +a && exec ./bin/server.replay'"
+
+      - name: Upload Keploy reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keploy-reports
+          path: keploy/reports/
