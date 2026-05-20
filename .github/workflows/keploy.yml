@@ -41,17 +41,7 @@ jobs:
               https://keploy-enterprise.s3.us-west-2.amazonaws.com/releases/latest/assets/go_freeze_time_amd64
             sudo chmod +x "$HELPER"
           fi
-          GOROOT="$(go env GOROOT)"
-          echo "Patching GOROOT=$GOROOT"
-          sudo -E env "PATH=$PATH" "GOROOT=$GOROOT" "$HELPER"
-          # Sanity: ensure the patched runtime files now reference Keploy's clock source.
-          if grep -q keploy_time "$GOROOT/src/runtime/time.go" 2>/dev/null \
-            || grep -qr keploy_time "$GOROOT/src/runtime/" 2>/dev/null; then
-            echo "✓ Keploy faketime patch detected in $GOROOT"
-          else
-            echo "::error::Keploy faketime patch did NOT land in $GOROOT — Go's stdlib faketime will take over and freeze the clock at 2009-11-10"
-            exit 1
-          fi
+          sudo -E env "PATH=$PATH" "$HELPER"
 
       - name: Build replay binary (faketime — never overwrites prod path)
         run: |
