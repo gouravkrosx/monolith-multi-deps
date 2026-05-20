@@ -45,7 +45,7 @@ jobs:
             --app-url http://localhost:8080 \
             --cloud-app-id 456f2ebe-3ac5-4952-be08-97862e16c206 \
             --freezeTime \
-            --ci \
+            --in-ci \
             -c "bash -c 'set -a && source .env.example && set +a && exec ./bin/server.replay'"
 
       - name: Upload Keploy reports
