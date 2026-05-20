@@ -1,0 +1,56 @@
+name: Keploy sandbox replay
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  keploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: true
+
+      - name: Install Keploy
+        run: curl -sL https://keploy.io/ent/install.sh | sudo bash
+
+      - name: Fetch Go faketime agent + patch toolchain
+        run: |
+          set -eu
+          HELPER=/lib/keploy/go_freeze_time_amd64
+          if [ ! -f "$HELPER" ]; then
+            sudo mkdir -p /lib/keploy
+            sudo curl -fsSL -o "$HELPER" \
+              https://keploy-enterprise.s3.us-west-2.amazonaws.com/releases/latest/assets/go_freeze_time_amd64
+            sudo chmod +x "$HELPER"
+          fi
+          sudo "$HELPER"
+
+      - name: Build replay binary (faketime — never overwrites prod path)
+        run: |
+          set -eu
+          mkdir -p bin
+          go build -tags=faketime -o ./bin/server.replay ./cmd/server
+
+      - name: Run Keploy sandbox replay
+        env:
+          KEPLOY_API_KEY: ${{ secrets.KEPLOY_API_KEY }}
+        run: |
+          sudo -E HOME=$HOME keploy sandbox local replay \
+            --test-dir keploy/api-tests \
+            --app-url http://localhost:8080 \
+            --cloud-app-id 456f2ebe-3ac5-4952-be08-97862e16c206 \
+            --freezeTime \
+            --ci \
+            -c "bash -c 'set -a && source .env.example && set +a && exec ./bin/server.replay'"
+
+      - name: Upload Keploy reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keploy-reports
+          path: keploy/reports/
