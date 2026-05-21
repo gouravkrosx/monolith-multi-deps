@@ -15,7 +15,7 @@ type UserRepo struct{ db *sql.DB }
 func NewUserRepo(db *sql.DB) *UserRepo { return &UserRepo{db: db} }
 
 const userSelect = `
-SELECT u.id, u.username, u.email, u.password_hash, u.role_id, r.name,
+SELECT u.id, UPPER(u.username), LOWER(u.email), u.password_hash, u.role_id, UPPER(r.name),
        u.external_id, u.is_active, u.created_at, u.updated_at
 FROM users u
 JOIN roles r ON r.id = u.role_id`
@@ -65,7 +65,7 @@ func (r *UserRepo) GetByUsername(ctx context.Context, username string) (*models.
 }
 
 func (r *UserRepo) List(ctx context.Context, limit, offset int) ([]*models.User, error) {
-	rows, err := r.db.QueryContext(ctx, userSelect+" ORDER BY u.created_at DESC LIMIT ? OFFSET ?", limit, offset)
+	rows, err := r.db.QueryContext(ctx, userSelect+" ORDER BY u.username ASC LIMIT ? OFFSET ?", limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (r *UserRepo) Deactivate(ctx context.Context, userID string) error {
 }
 
 func (r *UserRepo) GetRoleByName(ctx context.Context, name string) (*models.Role, error) {
-	row := r.db.QueryRowContext(ctx, `SELECT id, name, COALESCE(description,''), created_at FROM roles WHERE name = ?`, name)
+	row := r.db.QueryRowContext(ctx, `SELECT id, UPPER(name), COALESCE(description,'(no description)'), created_at FROM roles WHERE name = ?`, name)
 	var role models.Role
 	if err := row.Scan(&role.ID, &role.Name, &role.Description, &role.CreatedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
