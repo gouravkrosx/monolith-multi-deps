@@ -55,11 +55,11 @@ jobs:
       - name: Run Keploy sandbox replay
         env:
           KEPLOY_API_KEY: ${{ secrets.KEPLOY_API_KEY }}
-        run: sudo -E HOME=$HOME keploy sandbox local replay --test-dir keploy/api-tests --app-url http://localhost:8080 -c "./bin/server.replay" --cloud-app-id 456f2ebe-3ac5-4952-be08-97862e16c206 --in-ci --freezeTime --delay 10
+        run: sudo -E HOME=$HOME keploy sandbox local replay --test-dir keploy/api-tests --app-url http://localhost:8080 -c "./bin/server.replay" --cloud-app-id 69f43a9e05c7c7820b5fedc1 --in-ci --freezeTime --delay 10
 
       - name: Upload run artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: keploy-results
-          path: keploy/api-tests/reports/
+          path: keploy/reports/

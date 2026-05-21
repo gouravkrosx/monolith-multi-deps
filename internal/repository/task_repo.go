@@ -14,7 +14,7 @@ type TaskRepo struct{ db *sql.DB }
 
 func NewTaskRepo(db *sql.DB) *TaskRepo { return &TaskRepo{db: db} }
 
-const taskCols = `id, title, COALESCE(description,''), status, priority, due_date, owner_id, created_at, updated_at`
+const taskCols = `id, UPPER(title), COALESCE(description,'(no description)'), UPPER(status), UPPER(priority), due_date, owner_id, created_at, updated_at`
 
 func scanTask(row interface{ Scan(...any) error }) (*models.Task, error) {
 	var t models.Task
@@ -64,7 +64,7 @@ type TaskFilter struct {
 }
 
 func (r *TaskRepo) List(ctx context.Context, f TaskFilter) ([]*models.Task, error) {
-	const cols = `t.id, t.title, COALESCE(t.description,''), t.status, t.priority,
+	const cols = `t.id, UPPER(t.title), COALESCE(t.description,'(no description)'), UPPER(t.status), UPPER(t.priority),
 	              t.due_date, t.owner_id, t.created_at, t.updated_at`
 
 	var (
@@ -92,7 +92,7 @@ func (r *TaskRepo) List(ctx context.Context, f TaskFilter) ([]*models.Task, erro
 	if f.Limit <= 0 {
 		f.Limit = 50
 	}
-	q += " ORDER BY t.created_at DESC LIMIT ? OFFSET ?"
+	q += ` ORDER BY FIELD(t.priority,'urgent','high','medium','low'), t.created_at DESC LIMIT ? OFFSET ?`
 	args = append(args, f.Limit, f.Offset)
 
 	rows, err := r.db.QueryContext(ctx, q, args...)
@@ -236,7 +236,7 @@ func (r *TaskRepo) Unassign(ctx context.Context, taskID, userID string) error {
 }
 
 func (r *TaskRepo) Assignees(ctx context.Context, taskID string) ([]string, error) {
-	rows, err := r.db.QueryContext(ctx, `SELECT user_id FROM task_assignments WHERE task_id = ?`, taskID)
+	rows, err := r.db.QueryContext(ctx, `SELECT user_id FROM task_assignments WHERE task_id = ? ORDER BY assigned_at ASC, user_id ASC`, taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -254,8 +254,8 @@ func (r *TaskRepo) Assignees(ctx context.Context, taskID string) ([]string, erro
 
 func (r *TaskRepo) History(ctx context.Context, taskID string) ([]*models.TaskHistory, error) {
 	rows, err := r.db.QueryContext(ctx,
-		`SELECT id, task_id, changed_by, field, COALESCE(old_value,''), COALESCE(new_value,''), changed_at
-		 FROM task_history WHERE task_id = ? ORDER BY changed_at DESC`, taskID)
+		`SELECT id, task_id, changed_by, UPPER(field), COALESCE(old_value,'<unset>'), COALESCE(new_value,'<unset>'), changed_at
+		 FROM task_history WHERE task_id = ? ORDER BY changed_at ASC, id ASC`, taskID)
 	if err != nil {
 		return nil, err
 	}

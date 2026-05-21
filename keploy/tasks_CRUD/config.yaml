@@ -5,5 +5,5 @@ template: {}
 metadata:
     name: tasks_CRUD
 mockRegistry:
-    mock: e18c5a307fb5c550386ab2cfb2a62e102972e85f27b3b985516ced9ce2473549
+    mock: 32493771be5c324c81a1e71d602e98e3b99d47ae4f6f5799f63eec8c8a0bd34e
     app: monolith-multi-deps
