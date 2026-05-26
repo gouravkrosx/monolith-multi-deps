@@ -1,0 +1,78 @@
+name: auth_CRUD
+description: Exercise login (happy path + 2 negatives) and register (conflict + forbidden-role negatives).
+steps:
+  - name: login admin happy path
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"admin","password":"admin12345"}'
+    extract:
+      token: $.access_token
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.user.username
+        expected: "admin"
+      - type: json_strict_equal
+        key: $.user.role
+        expected: "admin"
+      - type: json_strict_equal
+        key: $.user.role_id
+        expected: 1
+      - type: json_strict_equal
+        key: $.user.is_active
+        expected: true
+
+  - name: login with wrong password → 401
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"admin","password":"definitely-wrong"}'
+    assert:
+      - type: status_code
+        expected_string: "401"
+      - type: json_strict_equal
+        key: $.error
+        expected: "invalid credentials"
+
+  - name: login with non-existent user → 401
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"ghost_user_does_not_exist","password":"whatever"}'
+    assert:
+      - type: status_code
+        expected_string: "401"
+      - type: json_strict_equal
+        key: $.error
+        expected: "invalid credentials"
+
+  - name: register existing username → 409 conflict
+    method: POST
+    url: /api/v1/auth/register
+    headers:
+      Content-Type: application/json
+    body: '{"username":"admin","email":"admin@local","password":"admin12345"}'
+    assert:
+      - type: status_code
+        expected_string: "409"
+      - type: json_strict_equal
+        key: $.error
+        expected: "user already exists"
+
+  - name: register with role=admin → 403 forbidden
+    method: POST
+    url: /api/v1/auth/register
+    headers:
+      Content-Type: application/json
+    body: '{"username":"someone","email":"someone@local","password":"x","role":"admin"}'
+    assert:
+      - type: status_code
+        expected_string: "403"
+      - type: json_strict_equal
+        key: $.error
+        expected: "cannot self-register as admin"

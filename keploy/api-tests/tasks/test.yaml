@@ -1,0 +1,90 @@
+name: tasks_CRUD
+description: Login as admin, then create -> get -> update -> delete a task.
+steps:
+  - name: login admin (prelude — yields bearer token)
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"admin","password":"admin12345"}'
+    extract:
+      token: $.access_token
+      admin_id: $.user.id
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.user.username
+        expected: "admin"
+      - type: json_strict_equal
+        key: $.user.role
+        expected: "admin"
+
+  - name: create task
+    method: POST
+    url: /api/v1/tasks
+    headers:
+      Content-Type: application/json
+      Authorization: Bearer {{token}}
+    body: '{"title":"keploy CRUD probe","description":"created by tasks_CRUD","priority":"high"}'
+    extract:
+      task_id: $.id
+    assert:
+      - type: status_code
+        expected_string: "201"
+      - type: json_strict_equal
+        key: $.title
+        expected: "keploy CRUD probe"
+      - type: json_strict_equal
+        key: $.status
+        expected: "pending"
+      - type: json_strict_equal
+        key: $.priority
+        expected: "high"
+      - type: json_strict_equal
+        key: $.owner_id
+        expected: "{{admin_id}}"
+
+  - name: get task
+    method: GET
+    url: /api/v1/tasks/{{task_id}}
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.id
+        expected: "{{task_id}}"
+      - type: json_strict_equal
+        key: $.status
+        expected: "pending"
+
+  - name: update task status to in_progress
+    method: PATCH
+    url: /api/v1/tasks/{{task_id}}
+    headers:
+      Content-Type: application/json
+      Authorization: Bearer {{token}}
+    body: '{"status":"in_progress","priority":"urgent"}'
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.status
+        expected: "in_progress"
+      - type: json_strict_equal
+        key: $.priority
+        expected: "urgent"
+
+  - name: delete task
+    method: DELETE
+    url: /api/v1/tasks/{{task_id}}
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.status
+        expected: "deleted"
