@@ -1,0 +1,81 @@
+name: users_CRUD
+description: Login as admin, then exercise /me (with external enrichment), /users list, and /users/:id.
+steps:
+  - name: login admin (prelude — yields bearer token + admin id)
+    method: POST
+    url: /api/v1/auth/login
+    headers:
+      Content-Type: application/json
+    body: '{"username":"admin","password":"admin12345"}'
+    extract:
+      token: $.access_token
+      admin_id: $.user.id
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.user.username
+        expected: "admin"
+
+  - name: get me (enriched with external user)
+    method: GET
+    url: /api/v1/me
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.id
+        expected: "{{admin_id}}"
+      - type: json_strict_equal
+        key: $.username
+        expected: "admin"
+      - type: json_strict_equal
+        key: $.role
+        expected: "admin"
+      - type: json_strict_equal
+        key: $.is_active
+        expected: true
+      - type: json_strict_equal
+        key: $.external_id
+        expected: 1
+      - type: json_strict_equal
+        key: $.external.id
+        expected: 1
+      - type: json_strict_equal
+        key: $.external.username
+        expected: "Bret"
+
+  - name: list users
+    method: GET
+    url: /api/v1/users
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_contains
+        key: $.users.0.username
+        expected_string: '""'
+
+  - name: get user by id (admin's own profile)
+    method: GET
+    url: /api/v1/users/{{admin_id}}
+    headers:
+      Authorization: Bearer {{token}}
+    assert:
+      - type: status_code
+        expected_string: "200"
+      - type: json_strict_equal
+        key: $.id
+        expected: "{{admin_id}}"
+      - type: json_strict_equal
+        key: $.username
+        expected: "admin"
+      - type: json_strict_equal
+        key: $.role
+        expected: "admin"
+      - type: json_strict_equal
+        key: $.role_id
+        expected: 1
