@@ -1,4 +1,7 @@
 
 /reports/
 
+# mocks.yaml committed intentionally: the recording api-server is local-only,
+# so CI cannot fetch mocks from the cloud registry (replay uses --useLocalMock).
+
 /*/mocks.yaml

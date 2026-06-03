@@ -50,6 +50,102 @@ tests:
           timestamp: 1780485103
           reqTimestampMock: "2026-06-03T11:11:43.273520862Z"
           resTimestampMock: "2026-06-03T11:11:43.273520862Z"
+    - id: grpc-taskservice-deletetask-1
+      mock_entries:
+        - name: mock-18
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.708337611Z"
+          resTimestampMock: "2026-06-03T11:11:40.70860668Z"
+        - name: mock-86
+          kind: MySQL
+          timestamp: 1780485103
+          reqTimestampMock: "2026-06-03T11:11:43.781261335Z"
+          resTimestampMock: "2026-06-03T11:11:43.781477274Z"
+        - name: mock-20
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.709244618Z"
+          resTimestampMock: "2026-06-03T11:11:40.709244618Z"
+        - name: mock-21
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.709260269Z"
+          resTimestampMock: "2026-06-03T11:11:40.709483028Z"
+        - name: mock-89
+          kind: MySQL
+          timestamp: 1780485103
+          reqTimestampMock: "2026-06-03T11:11:43.781882714Z"
+          resTimestampMock: "2026-06-03T11:11:43.782081654Z"
+        - name: mock-23
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.710926634Z"
+          resTimestampMock: "2026-06-03T11:11:40.710926634Z"
+        - name: mock-91
+          kind: MySQL
+          timestamp: 1780485103
+          reqTimestampMock: "2026-06-03T11:11:43.782152033Z"
+          resTimestampMock: "2026-06-03T11:11:43.782712091Z"
+        - name: mock-92
+          kind: MySQL
+          timestamp: 1780485103
+          reqTimestampMock: "2026-06-03T11:11:43.782786272Z"
+          resTimestampMock: "2026-06-03T11:11:43.784758377Z"
+        - name: mock-93
+          kind: MySQL
+          timestamp: 1780485103
+          reqTimestampMock: "2026-06-03T11:11:43.784854787Z"
+          resTimestampMock: "2026-06-03T11:11:43.784854787Z"
+    - id: grpc-taskservice-gettask-1
+      mock_entries:
+        - name: mock-18
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.708337611Z"
+          resTimestampMock: "2026-06-03T11:11:40.70860668Z"
+        - name: mock-29
+          kind: MySQL
+          timestamp: 1780485101
+          reqTimestampMock: "2026-06-03T11:11:41.728955254Z"
+          resTimestampMock: "2026-06-03T11:11:41.729201583Z"
+        - name: mock-20
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.709244618Z"
+          resTimestampMock: "2026-06-03T11:11:40.709244618Z"
+        - name: mock-21
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.709260269Z"
+          resTimestampMock: "2026-06-03T11:11:40.709483028Z"
+        - name: mock-32
+          kind: MySQL
+          timestamp: 1780485101
+          reqTimestampMock: "2026-06-03T11:11:41.729606613Z"
+          resTimestampMock: "2026-06-03T11:11:41.729811272Z"
+        - name: mock-23
+          kind: MySQL
+          timestamp: 1780485100
+          reqTimestampMock: "2026-06-03T11:11:40.710926634Z"
+          resTimestampMock: "2026-06-03T11:11:40.710926634Z"
+    - id: grpc-authservice-login-1
+      mock_entries:
+        - name: mock-6
+          kind: MySQL
+          timestamp: 1780485094
+          reqTimestampMock: "2026-06-03T11:11:34.6095538Z"
+          resTimestampMock: "2026-06-03T11:11:34.616219445Z"
+        - name: mock-10
+          kind: MySQL
+          timestamp: 1780485099
+          reqTimestampMock: "2026-06-03T11:11:39.595070666Z"
+          resTimestampMock: "2026-06-03T11:11:39.595325475Z"
+        - name: mock-8
+          kind: MySQL
+          timestamp: 1780485094
+          reqTimestampMock: "2026-06-03T11:11:34.621179683Z"
+          resTimestampMock: "2026-06-03T11:11:34.621179683Z"
     - id: grpc-taskservice-assigntask-1
       mock_entries:
         - name: mock-18
@@ -112,53 +208,6 @@ tests:
           timestamp: 1780485102
           reqTimestampMock: "2026-06-03T11:11:42.759465964Z"
           resTimestampMock: "2026-06-03T11:11:42.759465964Z"
-    - id: grpc-taskservice-deletetask-1
-      mock_entries:
-        - name: mock-18
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.708337611Z"
-          resTimestampMock: "2026-06-03T11:11:40.70860668Z"
-        - name: mock-86
-          kind: MySQL
-          timestamp: 1780485103
-          reqTimestampMock: "2026-06-03T11:11:43.781261335Z"
-          resTimestampMock: "2026-06-03T11:11:43.781477274Z"
-        - name: mock-20
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.709244618Z"
-          resTimestampMock: "2026-06-03T11:11:40.709244618Z"
-        - name: mock-21
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.709260269Z"
-          resTimestampMock: "2026-06-03T11:11:40.709483028Z"
-        - name: mock-89
-          kind: MySQL
-          timestamp: 1780485103
-          reqTimestampMock: "2026-06-03T11:11:43.781882714Z"
-          resTimestampMock: "2026-06-03T11:11:43.782081654Z"
-        - name: mock-23
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.710926634Z"
-          resTimestampMock: "2026-06-03T11:11:40.710926634Z"
-        - name: mock-91
-          kind: MySQL
-          timestamp: 1780485103
-          reqTimestampMock: "2026-06-03T11:11:43.782152033Z"
-          resTimestampMock: "2026-06-03T11:11:43.782712091Z"
-        - name: mock-92
-          kind: MySQL
-          timestamp: 1780485103
-          reqTimestampMock: "2026-06-03T11:11:43.782786272Z"
-          resTimestampMock: "2026-06-03T11:11:43.784758377Z"
-        - name: mock-93
-          kind: MySQL
-          timestamp: 1780485103
-          reqTimestampMock: "2026-06-03T11:11:43.784854787Z"
-          resTimestampMock: "2026-06-03T11:11:43.784854787Z"
     - id: grpc-authservice-login-2
       mock_entries:
         - name: mock-6
@@ -218,38 +267,6 @@ tests:
           timestamp: 1780485100
           reqTimestampMock: "2026-06-03T11:11:40.709586808Z"
           resTimestampMock: "2026-06-03T11:11:40.710848825Z"
-        - name: mock-23
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.710926634Z"
-          resTimestampMock: "2026-06-03T11:11:40.710926634Z"
-    - id: grpc-taskservice-gettask-1
-      mock_entries:
-        - name: mock-18
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.708337611Z"
-          resTimestampMock: "2026-06-03T11:11:40.70860668Z"
-        - name: mock-29
-          kind: MySQL
-          timestamp: 1780485101
-          reqTimestampMock: "2026-06-03T11:11:41.728955254Z"
-          resTimestampMock: "2026-06-03T11:11:41.729201583Z"
-        - name: mock-20
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.709244618Z"
-          resTimestampMock: "2026-06-03T11:11:40.709244618Z"
-        - name: mock-21
-          kind: MySQL
-          timestamp: 1780485100
-          reqTimestampMock: "2026-06-03T11:11:40.709260269Z"
-          resTimestampMock: "2026-06-03T11:11:40.709483028Z"
-        - name: mock-32
-          kind: MySQL
-          timestamp: 1780485101
-          reqTimestampMock: "2026-06-03T11:11:41.729606613Z"
-          resTimestampMock: "2026-06-03T11:11:41.729811272Z"
         - name: mock-23
           kind: MySQL
           timestamp: 1780485100
@@ -404,20 +421,3 @@ tests:
           timestamp: 1780485101
           reqTimestampMock: "2026-06-03T11:11:41.729876152Z"
           resTimestampMock: "2026-06-03T11:11:41.729876152Z"
-    - id: grpc-authservice-login-1
-      mock_entries:
-        - name: mock-6
-          kind: MySQL
-          timestamp: 1780485094
-          reqTimestampMock: "2026-06-03T11:11:34.6095538Z"
-          resTimestampMock: "2026-06-03T11:11:34.616219445Z"
-        - name: mock-10
-          kind: MySQL
-          timestamp: 1780485099
-          reqTimestampMock: "2026-06-03T11:11:39.595070666Z"
-          resTimestampMock: "2026-06-03T11:11:39.595325475Z"
-        - name: mock-8
-          kind: MySQL
-          timestamp: 1780485094
-          reqTimestampMock: "2026-06-03T11:11:34.621179683Z"
-          resTimestampMock: "2026-06-03T11:11:34.621179683Z"

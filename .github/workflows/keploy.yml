@@ -43,6 +43,15 @@ jobs:
 
       - name: Run Keploy tests
         # Replay mocks all dependencies (MySQL/Redis) — no services needed.
+        # --useLocalMock: mocks are committed in keploy/<set>/mocks.yaml (the
+        # recording api-server is local-only, so the cloud registry has none).
         env:
           KEPLOY_API_KEY: ${{ secrets.KEPLOY_API_KEY }}
-        run: sudo -E env "PATH=$PATH" "HOME=$HOME" "KEPLOY_API_KEY=$KEPLOY_API_KEY" keploy test -c './bin/server.replay' --freezeTime --mappings
+        run: |
+          sudo -E env "PATH=$PATH" "HOME=$HOME" "KEPLOY_API_KEY=$KEPLOY_API_KEY" \
+            keploy test -c './bin/server.replay' --freezeTime --mappings --useLocalMock --disable-ansi \
+            | tee keploy-run.log
+          # keploy can exit 0 even when the run aborts mid-way — require a
+          # complete summary with zero failures in every test-set.
+          grep -q 'COMPLETE TESTRUN SUMMARY' keploy-run.log
+          test -z "$(grep 'Total test failed' keploy-run.log | grep -vE ': *0$')"
