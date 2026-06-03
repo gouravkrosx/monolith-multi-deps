@@ -21,7 +21,12 @@ jobs:
       - name: Install Keploy
         run: |
           curl --silent -O -L https://keploy.io/ent/install.sh
-          source install.sh
+          # install.sh uses non-zero returns for control flow (e.g. its docker
+          # check returns 1 on success), which kills bash -e — run it tolerant,
+          # then verify the binary actually installed.
+          source install.sh || true
+          command -v keploy
+          keploy --version || true
 
       - name: Patch Go runtime for time freezing
         # Replay-only faketime support: recorded JWTs have iat/exp baked in,
