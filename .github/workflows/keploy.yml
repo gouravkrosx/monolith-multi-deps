@@ -48,7 +48,10 @@ jobs:
         env:
           KEPLOY_API_KEY: ${{ secrets.KEPLOY_API_KEY }}
         run: |
-          sudo -E env "PATH=$PATH" "HOME=$HOME" "KEPLOY_API_KEY=$KEPLOY_API_KEY" \
+          # KEPLOY_STRICT_MOCK_WINDOW=0: on slower CI runners the app's startup
+          # bootstrap lands outside the recorded mock windows, and strict
+          # containment then serves wrong-row mocks to the auth tests.
+          sudo -E env "PATH=$PATH" "HOME=$HOME" "KEPLOY_API_KEY=$KEPLOY_API_KEY" "KEPLOY_STRICT_MOCK_WINDOW=0" \
             keploy test -c './bin/server.replay' --freezeTime --mappings --useLocalMock --disable-ansi \
             | tee keploy-run.log
           # keploy can exit 0 even when the run aborts mid-way — require a
