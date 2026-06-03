@@ -16,7 +16,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          # Match the Go version the suite was recorded/verified with — the
+          # replay binary's connection behavior must match the recording.
+          go-version: '1.24.1'
 
       - name: Install Keploy
         run: |
