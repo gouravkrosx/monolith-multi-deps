@@ -1,0 +1,43 @@
+name: Keploy
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  keploy-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install Keploy
+        run: |
+          curl --silent -O -L https://keploy.io/ent/install.sh
+          source install.sh
+
+      - name: Patch Go runtime for time freezing
+        # Replay-only faketime support: recorded JWTs have iat/exp baked in,
+        # so replay must run at the recorded wall-clock time (--freezeTime).
+        run: |
+          sudo mkdir -p /lib/keploy
+          sudo curl -fsSL -o /lib/keploy/go_freeze_time_amd64 https://keploy-enterprise.s3.us-west-2.amazonaws.com/releases/latest/assets/go_freeze_time_amd64
+          sudo chmod +x /lib/keploy/go_freeze_time_amd64
+          sudo -E env "PATH=$PATH" /lib/keploy/go_freeze_time_amd64
+
+      - name: Build faketime replay binary
+        # Sibling binary only used for replay — never record with this build.
+        run: GOTOOLCHAIN=local go build -tags=faketime -o ./bin/server.replay ./cmd/server
+
+      - name: Run Keploy tests
+        # Replay mocks all dependencies (MySQL/Redis) — no services needed.
+        env:
+          KEPLOY_API_KEY: ${{ secrets.KEPLOY_API_KEY }}
+        run: sudo -E env "PATH=$PATH" "HOME=$HOME" "KEPLOY_API_KEY=$KEPLOY_API_KEY" keploy test -c './bin/server.replay' --freezeTime --mappings
