@@ -1,0 +1,10 @@
+preScript: ""
+postScript: ""
+appCommand: ""
+template: {}
+metadata:
+    description: auth+users+tasks create→read→update→assign→delete
+    name: taskmanager-crud
+mockRegistry:
+    mock: 18a445dba0b41bb3f7e74b151e8e25fd69487d066fe23e2b0d4d5ec769da8051
+    app: monolith-multi-deps

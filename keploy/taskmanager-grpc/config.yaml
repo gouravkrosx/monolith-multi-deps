@@ -1,0 +1,10 @@
+preScript: ""
+postScript: ""
+appCommand: ""
+template: {}
+metadata:
+    description: gRPC AuthService+TaskService login→create→list→get→update→assign→unassign→delete
+    name: taskmanager-grpc
+mockRegistry:
+    mock: 762c0def214d021528223854e26bcf72b86ebbfab542c1da74e60d2933e9080e
+    app: monolith-multi-deps
