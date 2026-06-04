@@ -3,4 +3,5 @@ bin/
 keploy-logs.txt
 keploy/reports/
 keploy/*/secret.yaml
+keploy/*/mocks.yaml
 .env

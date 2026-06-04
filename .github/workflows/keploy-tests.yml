@@ -1,0 +1,33 @@
+name: Keploy API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  keploy-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # faketime build is required for --freezeTime: recorded JWTs are only
+      # valid at recording time, so replay runs with the clock frozen.
+      # This binary is for replay only — never ship it.
+      - name: Build server (faketime)
+        run: go build -tags=faketime -o bin/server ./cmd/server
+
+      - name: Install Keploy
+        run: curl --silent -L https://keploy.io/ent/install.sh | bash
+
+      # mocks.yaml is not committed; keploy fetches mocks from the registry
+      # via the content-hash in each test-set's config.yaml (needs KEPLOY_API_KEY).
+      # Replay mocks all dependencies — no MySQL/Redis services needed here.
+      - name: Run Keploy tests
+        env:
+          KEPLOY_API_KEY: ${{ secrets.KEPLOY_API_KEY }}
+        run: sudo -E env PATH="$PATH" keploy test -c './bin/server' --mappings --freezeTime
